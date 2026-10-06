@@ -1,6 +1,6 @@
 # 🎮 PokéIdle Auto-Helper (Chrome Extension)
 
-Uma extensão para Google Chrome desenvolvida em JavaScript para automatizar tarefas repetitivas no jogo **PokéIdle**, como captura de Pokémon caídos e reabastecimento automático de itens (Pokébolas e Poções).
+Uma extensão para Google Chrome desenvolvida para automatizar tarefas repetitivas no jogo **PokéIdle**, como captura de Pokémon caídos e reabastecimento automático de itens (Pokébolas e Poções).
 
 ---
 
