@@ -332,18 +332,5 @@ Possíveis melhorias futuras:
 * [ ] Melhorias na interface do painel.
 * [ ] Configurações avançadas de automação.
 
----
 
-## ⚠️ Aviso
 
-Esta extensão foi desenvolvida para fins de estudo, automação pessoal e experimentação com JavaScript e Chrome Extension API.
-
-O funcionamento depende da estrutura atual da interface do **PokéIdle**. Alterações no HTML, classes, IDs ou comportamento do jogo podem fazer com que determinadas funcionalidades deixem de funcionar.
-
----
-
-## 📄 Licença
-
-Este projeto é destinado a fins educacionais e de uso pessoal.
-
-Consulte o arquivo `LICENSE` do repositório para obter informações sobre os termos de utilização do código.
