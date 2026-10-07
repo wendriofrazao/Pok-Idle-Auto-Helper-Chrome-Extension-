@@ -1,9 +1,17 @@
 {
   "manifest_version": 3,
   "name": "PokéIdle Automação",
-  "version": "1.1.6",
-  "description": "Automação para o PokéIdle IO",
-
+  "version": "2.4.6",
+  "description": "Automação para o PokéIdle",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "PokéIdle Bot"
+  },
   "content_scripts": [
     {
       "matches": [
@@ -12,8 +20,7 @@
       "js": [
         "content.js"
       ],
-      "run_at": "document_idle",
-      "world": "MAIN"
+      "run_at": "document_idle"
     }
   ]
 }

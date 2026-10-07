@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>PokéIdle Auto Helper</title>
+
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+
+  <body>
+    <div class="popup">
+      <header class="popup-header">
+        <div>
+          <h1>PokéIdle Auto Helper</h1>
+
+          <span id="status-extensao" class="status-extensao">
+            Extensão ativa
+          </span>
+        </div>
+      </header>
+
+      <main class="popup-content">
+        <!-- STATUS -->
+
+        <section class="config-section">
+          <div class="section-header">
+            <h2>Status</h2>
+
+            <p>Estado atual da automação.</p>
+          </div>
+
+          <div class="status-card">
+            <div class="status-row">
+              <span>Automação</span>
+
+              <strong id="status-automacao" class="status-off">
+                Desativada
+              </strong>
+            </div>
+
+            <div class="status-row">
+              <span>Pokébolas</span>
+
+              <strong id="status-bolas"> Verificando... </strong>
+            </div>
+
+            <div class="status-row">
+              <span>Poções</span>
+
+              <strong id="status-pocoes"> Verificando... </strong>
+            </div>
+
+            <div class="status-row">
+              <span>Equipe</span>
+
+              <strong id="status-equipe"> 0 / 5 </strong>
+            </div>
+          </div>
+        </section>
+
+        <!-- CONFIGURAÇÕES -->
+
+        <section class="config-section">
+          <div class="section-header">
+            <h2>Configurações</h2>
+
+            <p>Escolha quais funções devem funcionar automaticamente.</p>
+          </div>
+
+          <div class="options-list">
+            <label class="option">
+              <div class="option-info">
+                <strong> Capturar Pokémon </strong>
+
+                <span> Captura automaticamente os Pokémon caídos. </span>
+              </div>
+
+              <input type="checkbox" id="capturar-pokemon" checked />
+            </label>
+
+            <label class="option">
+              <div class="option-info">
+                <strong> Curar Pokémon </strong>
+
+                <span> Cura a equipe automaticamente no Centro Pokémon. </span>
+              </div>
+
+              <input type="checkbox" id="curar-automaticamente" checked />
+            </label>
+
+            <label class="option">
+              <div class="option-info">
+                <strong> Voltar ao Centro </strong>
+
+                <span> Retorna ao Centro quando a equipe estiver cheia. </span>
+              </div>
+
+              <input type="checkbox" id="voltar-centro" checked />
+            </label>
+
+            <label class="option">
+              <div class="option-info">
+                <strong> Comprar Pokébolas </strong>
+
+                <span> Compra automaticamente quando o estoque acabar. </span>
+              </div>
+
+              <input type="checkbox" id="comprar-bolas" checked />
+            </label>
+
+            <label class="option">
+              <div class="option-info">
+                <strong> Comprar Poções </strong>
+
+                <span> Compra automaticamente quando o estoque acabar. </span>
+              </div>
+
+              <input type="checkbox" id="comprar-pocoes" checked />
+            </label>
+          </div>
+        </section>
+
+        <!-- AÇÕES -->
+
+        <section class="config-section">
+          <div class="section-header">
+            <h2>Ações</h2>
+
+            <p>Controle manual da extensão.</p>
+          </div>
+
+          <div class="acoes">
+            <button type="button" id="btn-iniciar" class="btn btn-primary">
+              Iniciar automação
+            </button>
+
+            <button type="button" id="btn-parar" class="btn btn-danger">
+              Parar automação
+            </button>
+
+            <button type="button" id="btn-ir-centro" class="btn btn-secondary">
+              Ir para o Centro
+            </button>
+          </div>
+        </section>
+
+        <!-- LOGS -->
+
+        <section class="config-section">
+          <div class="section-header">
+            <h2>Logs</h2>
+
+            <p>Últimas atividades da extensão.</p>
+          </div>
+
+          <div id="log-container" class="log-container">
+            <div class="log-item">Extensão carregada.</div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="popup-footer">
+        <span> PokéIdle Auto Helper </span>
+
+        <span> v2.4.6 </span>
+      </footer>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
