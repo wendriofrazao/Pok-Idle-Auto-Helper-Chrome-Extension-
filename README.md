@@ -3,7 +3,7 @@
 Uma extensão para Google Chrome desenvolvida para automatizar tarefas repetitivas no jogo **PokéIdle**, como captura de Pokémon caídos e reabastecimento automático de itens (Pokébolas e Poções).
 
 ---
-**Nota:** Esta extensão encontra-se em **versão inicial (v0.1)**. Recursos adicionais e melhorias de estabilidade estão em desenvolvimento.
+**Nota:** Esta extensão encontra-se em **versão inicial (v0.1)**. Recursos adicionais e melhorias na automação de escolhas de pokebolas e porções com base da quantidade de moeda que possue, estão em desenvolvimento.
 
 ## 📌 Funcionalidades
 
