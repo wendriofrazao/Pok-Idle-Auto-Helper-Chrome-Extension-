@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "PokéIdle Automação",
-  "version": "0.1.6",
+  "version": "1.1.6",
   "description": "Automação para o PokéIdle IO",
 
   "content_scripts": [
