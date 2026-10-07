@@ -20,8 +20,6 @@ Esta versão representa uma atualização da extensão para uma estrutura de pro
 
 A extensão monitora os Pokémon caídos disponíveis na interface e realiza a captura automaticamente.
 
-A captura é interrompida quando a equipe atinge o limite de **5 Pokémon**.
-
 O recurso pode ser ativado ou desativado individualmente pelo painel da extensão.
 
 ---
