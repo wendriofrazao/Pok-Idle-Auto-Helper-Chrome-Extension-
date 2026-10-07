@@ -1,120 +1,117 @@
-console.log("EXTENSÃO POKÉIDLE CARREGADA!");
+console.log("[PokéIdle Extension] Carregada com sucesso!");
 
 let comprando = false;
 
-// LOOP PRINCIPAL (1 segundo)
+// loop principal (1 segundo)
 setInterval(() => {
   const caidos = document.getElementById("caidos");
   const bolasCaida = document.querySelectorAll(".caidos-bola");
   const caido = document.querySelectorAll(".caido");
   const listaPoke = document.querySelectorAll(".lista-poke");
   const timeCnt = document.getElementById("time-cnt");
-  const autoChip = document.querySelectorAll(".auto-chip");
 
-  const quantidadePokemon = listaPoke.length;
+  // Se o time estiver cheio (>= 5), interrompe capturas
+  if (listaPoke.length >= 5) return;
 
-  if (quantidadePokemon >= 5) {
-    return;
-  }
-
-  if (!timeCnt) return;
-
-  const partesTempo = timeCnt.textContent.trim().split("/");
-  const tempoAtual = parseInt(partesTempo[0]);
-  const tempoTotal = parseInt(partesTempo[1]);
-
-  if (isNaN(tempoAtual) || (partesTempo.length > 1 && isNaN(tempoTotal)))
-    return;
-
-  // Abrir lista de Pokémon caídos
+  // 1. abrir e selecionar o pokemon caido
   if (caidos && !caidos.classList.contains("m-aberto")) {
     caidos.classList.add("m-aberto");
   }
 
-  // Selecionar última bola
-  bolasCaida.forEach((bola) => bola.classList.remove("on"));
-  const ultimaBola = bolasCaida[bolasCaida.length - 1];
-
-  if (!ultimaBola) return;
-  ultimaBola.classList.add("on");
-
-  // Verificar quantidade de bolas
-  const numeroBolas = ultimaBola.title?.split(" ");
-  if (!numeroBolas) return;
-
-  const quantidadeBolas = parseInt(numeroBolas[numeroBolas.length - 1]);
-  if (isNaN(quantidadeBolas)) return;
-
-  // Comprar Pokébolas se acabaram
-  if (quantidadeBolas <= 0 && !comprando) {
-    console.log("Pokébolas acabaram. Abrindo loja...");
-    openModalNav();
-  }
-
-  // Capturar Pokémon caídos
+  // Capturar caídos
   caido.forEach((pokemon, index) => {
     setTimeout(() => {
       const listaAtualizada = document.querySelectorAll(".lista-poke");
       if (listaAtualizada.length >= 5) return;
-
-      const tempoAtualizado = document.getElementById("time-cnt");
-      if (!tempoAtualizado) return;
-
-      const partesAtualizadas = tempoAtualizado.textContent.trim().split("/");
-      const tempoAtualNoClique = parseInt(partesAtualizadas[0]);
-
-      if (!isNaN(tempoAtualNoClique) && tempoAtualNoClique >= 5) return;
-
       pokemon.click();
     }, index * 50);
   });
 
-  // Verificar se TODOS os slots de poção estão vazios
-  if (!comprando && autoChip.length > 0) {
-    const todosVazios = Array.from(autoChip).every((chip) =>
+  // Se já houver um processo de compra rodando, encerra a checagem aqui
+  if (comprando) return;
+
+  // 2. VERIFICAÇÃO DE POKÉBOLAS (#auto-ball-opts)
+  const containerBolas = document.getElementById("auto-ball-opts");
+  if (containerBolas) {
+    const chipsBolas = containerBolas.querySelectorAll(".auto-chip");
+    let totalBolas = 0;
+
+    chipsBolas.forEach((chip) => {
+      const qtdEl = chip.querySelector(".q");
+      if (qtdEl) {
+        // Remove pontos de milhar (ex: "1.022" -> 1022)
+        const qtd = parseInt(qtdEl.textContent.replace(/\./g, "").trim()) || 0;
+        totalBolas += qtd;
+      }
+    });
+
+    if (totalBolas <= 0) {
+      console.log(
+        "[PokéIdle Extension] Pokébolas esgotadas! Abrindo Market...",
+      );
+      openModalNav();
+      return;
+    }
+  }
+
+  // 3. VERIFICAÇÃO DE POÇÕES (#auto-potion-opts)
+  const containerPocoes = document.getElementById("auto-potion-opts");
+  if (containerPocoes) {
+    const chipsPocoes = containerPocoes.querySelectorAll(".auto-chip");
+    let totalPocoes = 0;
+
+    chipsPocoes.forEach((chip) => {
+      const qtdEl = chip.querySelector(".q");
+      if (qtdEl) {
+        const qtd = parseInt(qtdEl.textContent.replace(/\./g, "").trim()) || 0;
+        totalPocoes += qtd;
+      }
+    });
+
+    const todasVazias = Array.from(chipsPocoes).every((chip) =>
       chip.classList.contains("vazio"),
     );
 
-    if (todosVazios) {
-      console.log("Todos os slots de poção estão vazios! Abrindo loja...");
+    if (totalPocoes <= 0 || todasVazias) {
+      console.log(
+        "[PokéIdle Extension] Todas as poções acabaram! Abrindo Market...",
+      );
       openModalLifePotion();
+      return;
     }
   }
 }, 1000);
 
-// MÉTODOS DE COMPRA DE POÇÕES (LIFE POTION)
+// MÉTODOS DE COMPRA NA LOJA (MARKET)
+// --- compra as porções ---
 function openModalLifePotion() {
   if (comprando) return;
-  comprando = true; // Trava para evitar requisições duplicadas
+  comprando = true;
 
-  const gaveta = document.getElementById("m-gaveta");
-  const market = document.querySelector(".modal");
-  const abas = document.querySelectorAll(".mk-aba");
-  const categorias = document.querySelectorAll(".mk-cat");
+  const btnMarket = document.querySelector('button[data-modal="market"]');
+  if (btnMarket) btnMarket.click();
 
-  if (gaveta && !gaveta.classList.contains("aberta"))
-    gaveta.classList.add("aberta");
+  setTimeout(() => {
+    // Transiciona para a aba "Compra"
+    const abas = document.querySelectorAll(".mk-aba");
+    abas.forEach((aba) => {
+      if (aba.dataset.aba === "compra") aba.click();
+    });
 
-  if (market && market.classList.contains("hidden"))
-    market.classList.remove("hidden");
+    setTimeout(() => {
+      // Clica na categoria "Poções"
+      const categorias = document.querySelectorAll(".mk-cat");
+      categorias.forEach((cat) => {
+        const texto = cat.textContent.trim();
+        if (texto.includes("Poções") || texto.includes("Pocoes")) {
+          cat.click();
+        }
+      });
 
-  // Simula o clique na aba Compra
-  abas.forEach((aba) => {
-    if (aba.dataset.aba === "compra") {
-      aba.click();
-    }
-  });
-
-  // Simula o clique na categoria Poções
-  categorias.forEach((cat) => {
-    const texto = cat.textContent.trim();
-    if (texto.includes("Poções") || texto.includes("Pocoes")) {
-      cat.click();
-    }
-  });
-
-  // Aguarda 500ms para renderizar as poções no modal
-  setTimeout(buyLifePotion, 500);
+      // Executa a compra após a renderização dos cards
+      setTimeout(buyLifePotion, 500);
+    }, 400);
+  }, 400);
 }
 
 function buyLifePotion() {
@@ -123,17 +120,19 @@ function buyLifePotion() {
   const precoMilLifePotion = 800000;
 
   if (!card || !moeda) {
-    console.log("Card da poção ou saldo não encontrado. Fechando loja...");
+    console.warn("[PokéIdle Extension] Card da poção não encontrado.");
     fecharLoja();
     return;
   }
 
   const inputQuantidade = card.querySelector('input[type="number"]');
   const botaoComprar = card.querySelector(".mk-acao");
-  const saldoAtual = parseInt(moeda.textContent.replace(/\D/g, ""));
+  const saldoAtual = parseInt(moeda.textContent.replace(/\D/g, "")) || 0;
 
   if (saldoAtual < precoMilLifePotion || !inputQuantidade || !botaoComprar) {
-    console.log("Saldo insuficiente ou elementos indisponíveis.");
+    console.warn(
+      "[PokéIdle Extension] Saldo insuficiente ou botão indisponível.",
+    );
     fecharLoja();
     return;
   }
@@ -143,35 +142,36 @@ function buyLifePotion() {
   inputQuantidade.dispatchEvent(new Event("change", { bubbles: true }));
 
   botaoComprar.click();
-  console.log("1000 Life Potions (Hyper Potion) compradas!");
+  console.log("[PokéIdle Extension] 1000 Life Potions compradas!");
 
   setTimeout(fecharLoja, 800);
 }
 
-// MÉTODOS DE COMPRA DE POKÉBOLAS
+// compra as pokebolas
 function openModalNav() {
   if (comprando) return;
   comprando = true;
 
-  const gaveta = document.getElementById("m-gaveta");
-  const market = document.querySelector(".modal");
-  const abas = document.querySelectorAll(".mk-aba");
-  const categorias = document.querySelectorAll(".mk-cat");
+  const btnMarket = document.querySelector('button[data-modal="market"]');
+  if (btnMarket) btnMarket.click();
 
-  if (gaveta && !gaveta.classList.contains("aberta"))
-    gaveta.classList.add("aberta");
-  if (market && market.classList.contains("hidden"))
-    market.classList.remove("hidden");
+  setTimeout(() => {
+    const abas = document.querySelectorAll(".mk-aba");
+    abas.forEach((aba) => {
+      if (aba.dataset.aba === "compra") aba.click();
+    });
 
-  abas.forEach((aba) => {
-    if (aba.dataset.aba === "compra") aba.click();
-  });
+    setTimeout(() => {
+      const categorias = document.querySelectorAll(".mk-cat");
+      categorias.forEach((cat) => {
+        if (cat.textContent.trim().includes("Pokébolas")) {
+          cat.click();
+        }
+      });
 
-  categorias.forEach((categoria) => {
-    if (categoria.textContent.trim().includes("Pokébolas")) categoria.click();
-  });
-
-  setTimeout(buyPokeBalls, 500);
+      setTimeout(buyPokeBalls, 500);
+    }, 400);
+  }, 400);
 }
 
 function buyPokeBalls() {
@@ -180,13 +180,14 @@ function buyPokeBalls() {
   const precoMilBolas = 130000;
 
   if (!card || !moeda) {
+    console.warn("[PokéIdle Extension] Card de Pokébolas não encontrado.");
     fecharLoja();
     return;
   }
 
   const inputQuantidade = card.querySelector('input[type="number"]');
   const botaoComprar = card.querySelector(".mk-acao");
-  const saldoAtual = parseInt(moeda.textContent.replace(/\D/g, ""));
+  const saldoAtual = parseInt(moeda.textContent.replace(/\D/g, "")) || 0;
 
   if (saldoAtual < precoMilBolas || !inputQuantidade || !botaoComprar) {
     fecharLoja();
@@ -198,18 +199,21 @@ function buyPokeBalls() {
   inputQuantidade.dispatchEvent(new Event("change", { bubbles: true }));
 
   botaoComprar.click();
-  console.log("1000 Pokébolas compradas!");
+  console.log("[PokéIdle Extension] 1000 Pokébolas compradas!");
 
   setTimeout(fecharLoja, 800);
 }
 
-// AUXILIARES
+// --- AUXILIARES ---
 function fecharLoja() {
-  const market = document.querySelector(".modal");
-  const gaveta = document.getElementById("m-gaveta");
+  const btnFechar = document.getElementById("modal-fechar");
 
-  if (market) market.classList.add("hidden");
-  if (gaveta) gaveta.classList.remove("aberta");
+  if (btnFechar) {
+    btnFechar.click();
+  } else {
+    const btnMarket = document.querySelector('button[data-modal="market"]');
+    if (btnMarket) btnMarket.click();
+  }
 
   liberarCompra();
 }
