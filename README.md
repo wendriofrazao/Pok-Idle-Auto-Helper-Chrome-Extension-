@@ -12,27 +12,27 @@ A extensão possui um painel de controle próprio para ativar, desativar e confi
 
 Esta versão aprimora o painel de controle, a comunicação entre o `popup.js` e o `content.js`, a exibição das estatísticas e o gerenciamento das informações do inventário.
 
-## ✨ Funcionalidades
+##  Funcionalidades
 
-### 🎯 Captura automática de Pokémon
+###  Captura automática de Pokémon
 
 * Monitora os Pokémon caídos disponíveis na interface do jogo.
 * Realiza a captura automaticamente.
 * Permite ativar ou desativar a funcionalidade pelo painel.
 
-### 🏥 Cura automática
+###  Cura automática
 
 * Identifica quando o personagem está no Centro Pokémon.
 * Verifica a disponibilidade da opção de cura.
 * Executa a cura automaticamente quando habilitada.
 
-### 🏠 Retorno automático ao Centro
+###  Retorno automático ao Centro
 
 * Monitora a quantidade de Pokémon na equipe.
 * Quando a equipe atinge 5 Pokémon, verifica a disponibilidade do retorno ao Centro Pokémon.
 * Executa o retorno automaticamente quando a ação está disponível.
 
-### 🔴 Compra automática de Pokébolas
+###  Compra automática de Pokébolas
 
 Quando o estoque de Pokébolas chega a zero, a extensão executa o fluxo de compra:
 
@@ -54,14 +54,14 @@ Quando o estoque de Poções está esgotado, a extensão:
 5. Tenta comprar até 1.000 unidades, conforme o saldo disponível e as condições da loja.
 6. Fecha a loja após a operação.
 
-### ⏯️ Controle da automação
+###  Controle da automação
 
 O painel permite controlar a execução das rotinas.
 
 * **Iniciar automação:** ativa o processamento das rotinas habilitadas.
 * **Parar automação:** interrompe a execução automática e impede o início de novas operações de compra.
 
-### ⚙️ Configurações individuais
+###  Configurações individuais
 
 É possível habilitar ou desabilitar individualmente:
 
@@ -73,7 +73,7 @@ O painel permite controlar a execução das rotinas.
 
 Assim, cada recurso pode ser utilizado conforme a necessidade do jogador.
 
-### 📊 Status e estatísticas
+###  Status e estatísticas
 
 O painel apresenta informações sobre o estado da automação e os recursos do jogador.
 
@@ -86,7 +86,7 @@ O painel apresenta informações sobre o estado da automação e os recursos do 
 
 O modal de estatísticas permite consultar essas informações e atualizar os dados exibidos.
 
-### 🏥 Retorno manual ao Centro
+###  Retorno manual ao Centro
 
 O painel também disponibiliza a ação **Ir para o Centro**, permitindo acionar manualmente o retorno quando a funcionalidade estiver disponível no jogo.
 
@@ -101,7 +101,7 @@ O painel registra eventos importantes da automação, como:
 * Comunicação com a página do jogo.
 * Erros encontrados durante a execução.
 
-### 🔄 Comunicação entre painel e jogo
+###  Comunicação entre painel e jogo
 
 A extensão utiliza mensagens entre o `popup.js` e o `content.js` para consultar o estado da automação, recuperar informações do inventário e executar ações solicitadas pelo painel.
 
@@ -111,7 +111,7 @@ As configurações individuais são armazenadas com a Chrome Storage API, permit
 
 ---
 
-## 🛠️ Tecnologias utilizadas
+##  Tecnologias utilizadas
 
 * **JavaScript (ES6+)** — lógica da extensão, automação e manipulação do DOM.
 * **HTML5** — estrutura do painel.
@@ -122,7 +122,7 @@ As configurações individuais são armazenadas com a Chrome Storage API, permit
 
 ---
 
-## 📂 Estrutura do projeto
+##  Estrutura do projeto
 
 ```text
 pokeidle_auto-click/
