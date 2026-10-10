@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "PokéIdle Automação",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "Automação para o PokéIdle",
   "permissions": [
     "activeTab",
