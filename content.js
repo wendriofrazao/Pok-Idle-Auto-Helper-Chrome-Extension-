@@ -56,15 +56,21 @@ function converterNumero(texto) {
     return null;
   }
 
-  const valor = String(texto)
+  let valor = String(texto)
     .trim()
     .replace(/[^\d.,-]/g, "");
 
   if (!valor) return null;
 
-  const normalizado = valor.replace(/\./g, "").replace(",", ".");
+  if (valor.includes(",") && valor.includes(".")) {
+    valor = valor.replace(/\./g, "").replace(",", ".");
+  } else if (valor.includes(",")) {
+    valor = valor.replace(",", ".");
+  } else if (/\.\d{3}$/.test(valor)) {
+    valor = valor.replace(/\./g, "");
+  }
 
-  const numero = Number(normalizado);
+  const numero = Number(valor);
 
   return Number.isFinite(numero) ? numero : null;
 }
@@ -82,10 +88,7 @@ function lerSaldoMoedas() {
 
   if (!elemento) return null;
 
-  const texto = elemento.textContent.trim();
-  const numero = texto.replace(/\./g, "").replace(/[^\d]/g, "");
-
-  return numero ? Number(numero) : null;
+  return converterNumero(elemento.textContent);
 }
 
 function lerEstoque(seletor) {
@@ -159,13 +162,13 @@ function obterEstatisticas() {
   };
 }
 
-/* Preços da loja */
+/* Loja */
 
 function encontrarCardLoja(nomeItem) {
   const nomeNormalizado = normalizarTexto(nomeItem);
 
   return (
-    Array.from(document.querySelectorAll(".mk-card")).find((card) => {
+    Array.from(document.querySelectorAll("#mk-corpo .mk-card")).find((card) => {
       const elementoNome = card.querySelector(".mk-nome");
 
       const nome = normalizarTexto(
@@ -224,7 +227,7 @@ function obterCustos() {
   };
 }
 
-/* Elementos e captura */
+/* Elementos */
 
 function elementoVisivel(elemento) {
   if (!elemento || !elemento.isConnected) return false;
@@ -248,6 +251,8 @@ function elementoHabilitado(elemento) {
     !elemento.classList.contains("disabled")
   );
 }
+
+/* Captura */
 
 function encontrarPokemonCaido() {
   const lista = document.querySelector("#caidos-lista");
@@ -299,7 +304,32 @@ function curarEquipe() {
   return true;
 }
 
-/* Compras */
+/* Retorno ao Centro */
+
+function irParaCentro() {
+  const botao = document.querySelector("#ir-centro");
+
+  if (!elementoVisivel(botao) || !elementoHabilitado(botao)) {
+    registrarLog("Botão de ir para o centro indisponível.");
+    return false;
+  }
+
+  botao.click();
+
+  registrarLog("Comando para ir ao centro enviado.");
+
+  return true;
+}
+
+function voltarCentroAutomaticamente() {
+  if (!configuracao.voltarCentro) return false;
+
+  if (contarEquipe() < 5) return false;
+
+  return irParaCentro();
+}
+
+/* Abrir e fechar Market */
 
 function encontrarBotaoLoja() {
   const seletores = [
@@ -320,6 +350,145 @@ function encontrarBotaoLoja() {
   return null;
 }
 
+function fecharMarket() {
+  const seletores = [
+    "#mk-fechar",
+    "#mk-fechar-modal",
+    ".mk-fechar",
+    ".mk-close",
+    "#mk-modal .fechar",
+    "#mk-modal button[aria-label='Fechar']",
+    "#mk-modal button[title='Fechar']",
+    "#mk-modal .mk-x",
+    "#mk-modal [data-fechar]",
+  ];
+
+  for (const seletor of seletores) {
+    const botao = document.querySelector(seletor);
+
+    if (elementoVisivel(botao) && elementoHabilitado(botao)) {
+      botao.click();
+      registrarLog("Market fechado após a compra.");
+      return true;
+    }
+  }
+
+  const raizLoja =
+    document.querySelector("#mk-modal") ||
+    document
+      .querySelector("#mk-corpo")
+      ?.closest('[role="dialog"], .modal, .mk-modal');
+
+  if (raizLoja) {
+    const botao = Array.from(raizLoja.querySelectorAll("button")).find(
+      (elemento) => {
+        const texto = normalizarTexto(elemento.textContent);
+        const aria = normalizarTexto(elemento.getAttribute("aria-label"));
+        const titulo = normalizarTexto(elemento.getAttribute("title"));
+
+        return (
+          texto === "fechar" ||
+          aria === "fechar" ||
+          titulo === "fechar" ||
+          aria === "close" ||
+          titulo === "close"
+        );
+      },
+    );
+
+    if (elementoVisivel(botao) && elementoHabilitado(botao)) {
+      botao.click();
+      registrarLog("Market fechado após a compra.");
+      return true;
+    }
+  }
+
+  registrarLog(
+    "Botão de fechar o Market não encontrado; confira o seletor no HTML.",
+  );
+
+  return false;
+}
+
+/* Categorias da loja */
+
+function selecionarCategoriaLoja(categoria) {
+  const corpoLoja = document.querySelector("#mk-corpo");
+
+  if (!corpoLoja) return "indisponivel";
+
+  const categorias = Array.from(corpoLoja.querySelectorAll(".mk-cat"));
+
+  const botao = categorias.find((elemento) => {
+    return normalizarTexto(elemento.textContent) === normalizarTexto(categoria);
+  });
+
+  if (!botao || !elementoVisivel(botao) || !elementoHabilitado(botao)) {
+    registrarLog(`Categoria "${categoria}" não encontrada na loja.`);
+
+    return "indisponivel";
+  }
+
+  if (botao.classList.contains("on")) {
+    return "selecionada";
+  }
+
+  botao.click();
+
+  registrarLog(`Categoria selecionada: ${categoria}.`);
+
+  return "alterada";
+}
+
+/* Aba de compra */
+
+function selecionarAbaCompra() {
+  const corpoLoja = document.querySelector("#mk-corpo");
+
+  if (!corpoLoja) return false;
+
+  if (corpoLoja.dataset.aba === "compra") {
+    return true;
+  }
+
+  const seletores = [
+    'button[data-aba="compra"]',
+    'button[data-tela="compra"]',
+    ".mk-aba[data-aba='compra']",
+    ".mk-tab[data-aba='compra']",
+    "#mk-abas button",
+    ".mk-abas button",
+    ".mk-tabs button",
+  ];
+
+  for (const seletor of seletores) {
+    const botoes = Array.from(document.querySelectorAll(seletor));
+
+    const botao = botoes.find((elemento) => {
+      const texto = normalizarTexto(elemento.textContent);
+      const atributo = normalizarTexto(
+        elemento.getAttribute("data-aba") || elemento.getAttribute("data-tela"),
+      );
+
+      return atributo === "compra" || texto === "comprar" || texto === "compra";
+    });
+
+    if (elementoVisivel(botao) && elementoHabilitado(botao)) {
+      botao.click();
+
+      registrarLog("Selecionando a aba de compra.");
+
+      return false;
+    }
+  }
+
+  registrarLog("Não foi possível localizar a aba de compra do Market.");
+
+  return false;
+}
+
+/* Compra */
+
 function comprarItem(nomeItem, quantidade) {
   if (Date.now() - ultimaCompra < INTERVALO_COMPRA) {
     return false;
@@ -327,16 +496,19 @@ function comprarItem(nomeItem, quantidade) {
 
   const card = encontrarCardLoja(nomeItem);
 
-  if (!card) return false;
+  if (!card) {
+    registrarLog(`Card não encontrado: ${nomeItem}.`);
+    return false;
+  }
 
   const campoQuantidade = card.querySelector('.mk-qtd input[type="number"]');
 
-  if (campoQuantidade) {
-    const quantidadeValida = Math.min(
-      9999,
-      Math.max(1, Math.floor(Number(quantidade) || 1)),
-    );
+  const quantidadeValida = Math.min(
+    9999,
+    Math.max(1, Math.floor(Number(quantidade) || 1)),
+  );
 
+  if (campoQuantidade) {
     campoQuantidade.value = String(quantidadeValida);
 
     campoQuantidade.dispatchEvent(new Event("input", { bubbles: true }));
@@ -347,6 +519,8 @@ function comprarItem(nomeItem, quantidade) {
   const botaoComprar = card.querySelector("button.mk-acao");
 
   if (!elementoVisivel(botaoComprar) || !elementoHabilitado(botaoComprar)) {
+    registrarLog(`Botão de compra indisponível para ${nomeItem}.`);
+
     return false;
   }
 
@@ -354,28 +528,63 @@ function comprarItem(nomeItem, quantidade) {
 
   ultimaCompra = Date.now();
 
-  registrarLog(`Compra solicitada: ${nomeItem}.`);
+  registrarLog(
+    `Compra solicitada: ${quantidadeValida} unidade(s) de ${nomeItem}.`,
+  );
+
+  setTimeout(() => {
+    fecharMarket();
+  }, 1000);
 
   return true;
 }
 
-function tentarComprar(nomeItem, quantidade) {
+function tentarComprar(nomeItem, quantidade, categoria) {
+  const corpoLoja = document.querySelector("#mk-corpo");
+
+  if (!corpoLoja) {
+    const botaoLoja = encontrarBotaoLoja();
+
+    if (elementoVisivel(botaoLoja) && elementoHabilitado(botaoLoja)) {
+      botaoLoja.click();
+
+      registrarLog("Abrindo Market para comprar itens.");
+
+      return true;
+    }
+
+    registrarLog("Market fechado e botão de abertura não encontrado.");
+
+    return false;
+  }
+
+  if (corpoLoja.dataset.aba !== "compra") {
+    selecionarAbaCompra();
+    return true;
+  }
+
+  const resultadoCategoria = selecionarCategoriaLoja(categoria);
+
+  if (resultadoCategoria === "indisponivel") {
+    return false;
+  }
+
+  if (resultadoCategoria === "alterada") {
+    return true;
+  }
+
   const card = encontrarCardLoja(nomeItem);
 
-  if (card) {
-    return comprarItem(nomeItem, quantidade);
+  if (!card) {
+    registrarLog(`${nomeItem} não encontrado na categoria ${categoria}.`);
+
+    return false;
   }
 
-  const botaoLoja = encontrarBotaoLoja();
-
-  if (botaoLoja) {
-    botaoLoja.click();
-
-    registrarLog("Loja aberta para localizar o item.");
-  }
-
-  return false;
+  return comprarItem(nomeItem, quantidade);
 }
+
+/* Monitoramento de estoque */
 
 function verificarCompras() {
   if (Date.now() - ultimaCompra < INTERVALO_COMPRA) {
@@ -386,30 +595,37 @@ function verificarCompras() {
   const pocoes = lerEstoque("#auto-potion-opts");
 
   if (configuracao.comprarBolas) {
-    const itemBola = bolas.find(
-      (item) =>
+    const itemBola = bolas.find((item) => {
+      return (
         normalizarTexto(item.nome) ===
-        normalizarTexto(configuracao.bolaSelecionada),
-    );
+        normalizarTexto(configuracao.bolaSelecionada)
+      );
+    });
 
     if (itemBola && itemBola.quantidade <= 0) {
-      tentarComprar(configuracao.bolaSelecionada, configuracao.quantidadeBolas);
+      const iniciouAcao = tentarComprar(
+        configuracao.bolaSelecionada,
+        configuracao.quantidadeBolas,
+        "Pokébolas",
+      );
 
-      return;
+      if (iniciouAcao) return;
     }
   }
 
   if (configuracao.comprarPocoes) {
-    const itemPocao = pocoes.find(
-      (item) =>
+    const itemPocao = pocoes.find((item) => {
+      return (
         normalizarTexto(item.nome) ===
-        normalizarTexto(configuracao.pocaoSelecionada),
-    );
+        normalizarTexto(configuracao.pocaoSelecionada)
+      );
+    });
 
     if (itemPocao && itemPocao.quantidade <= 0) {
       tentarComprar(
         configuracao.pocaoSelecionada,
         configuracao.quantidadePocoes,
+        "Poções",
       );
     }
   }
@@ -427,8 +643,8 @@ function executarAutomacao() {
   ultimaAcao = Date.now();
 
   if (capturarPokemonCaido()) return;
-
   if (curarEquipe()) return;
+  if (voltarCentroAutomaticamente()) return;
 
   verificarCompras();
 }
@@ -462,21 +678,6 @@ async function pararAutomacao() {
   registrarLog("Automação pausada.");
 }
 
-function irParaCentro() {
-  const botao = document.querySelector("#ir-centro");
-
-  if (!elementoVisivel(botao) || !elementoHabilitado(botao)) {
-    registrarLog("Botão de ir para o centro indisponível.");
-    return false;
-  }
-
-  botao.click();
-
-  registrarLog("Comando para ir ao centro enviado.");
-
-  return true;
-}
-
 /* Comunicação com o popup */
 
 chrome.runtime.onMessage.addListener((mensagem, remetente, sendResponse) => {
@@ -488,23 +689,39 @@ chrome.runtime.onMessage.addListener((mensagem, remetente, sendResponse) => {
       ...(mensagem.configuracao || {}),
     };
 
-    iniciarAutomacao().then(() => {
-      sendResponse({
-        sucesso: true,
-        ativo: automacaoAtiva,
+    iniciarAutomacao()
+      .then(() => {
+        sendResponse({
+          sucesso: true,
+          ativo: automacaoAtiva,
+        });
+      })
+      .catch((erro) => {
+        registrarLog("Erro ao iniciar a automação.");
+
+        sendResponse({
+          sucesso: false,
+          erro: erro.message,
+        });
       });
-    });
 
     return true;
   }
 
   if (mensagem.acao === "parar") {
-    pararAutomacao().then(() => {
-      sendResponse({
-        sucesso: true,
-        ativo: automacaoAtiva,
+    pararAutomacao()
+      .then(() => {
+        sendResponse({
+          sucesso: true,
+          ativo: automacaoAtiva,
+        });
+      })
+      .catch((erro) => {
+        sendResponse({
+          sucesso: false,
+          erro: erro.message,
+        });
       });
-    });
 
     return true;
   }
@@ -515,9 +732,9 @@ chrome.runtime.onMessage.addListener((mensagem, remetente, sendResponse) => {
       ...(mensagem.configuracao || {}),
     };
 
-    chrome.storage.local.set({ configuracao }, () => {
-      sendResponse({ sucesso: true });
-    });
+    chrome.storage.local.set({ configuracao }, () =>
+      sendResponse({ sucesso: true }),
+    );
 
     return true;
   }
