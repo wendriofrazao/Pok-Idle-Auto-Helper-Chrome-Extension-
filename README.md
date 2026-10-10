@@ -2,198 +2,174 @@
 
 Uma extensão para Google Chrome desenvolvida para automatizar tarefas repetitivas no jogo **PokéIdle**, oferecendo recursos para captura de Pokémon, gerenciamento da equipe, cura no Centro Pokémon e reabastecimento automático de Pokébolas e Poções.
 
-A extensão possui um painel de controle próprio para ativar, desativar e configurar individualmente cada recurso da automação.
+A extensão possui um painel de controle próprio para ativar, desativar e configurar individualmente cada recurso da automação, além de exibir informações sobre o inventário e as estatísticas do jogador.
 
 ---
 
 ## 📌 Versão atual
 
-**v2.4.6**
+**v2.5.0**
 
-Esta versão representa uma atualização da extensão para uma estrutura de produção, com um painel de controle integrado ao `content.js` e configurações individuais para cada rotina automática.
+Esta versão aprimora o painel de controle, a comunicação entre o `popup.js` e o `content.js`, a exibição das estatísticas e o gerenciamento das informações do inventário.
 
----
+##  Funcionalidades
 
-## ✨ Funcionalidades
+###  Captura automática de Pokémon
 
-### 🎯 Captura automática de Pokémon
+* Monitora os Pokémon caídos disponíveis na interface do jogo.
+* Realiza a captura automaticamente.
+* Permite ativar ou desativar a funcionalidade pelo painel.
 
-A extensão monitora os Pokémon caídos disponíveis na interface e realiza a captura automaticamente.
+###  Cura automática
 
-O recurso pode ser ativado ou desativado individualmente pelo painel da extensão.
+* Identifica quando o personagem está no Centro Pokémon.
+* Verifica a disponibilidade da opção de cura.
+* Executa a cura automaticamente quando habilitada.
 
----
+###  Retorno automático ao Centro
 
-### 🏥 Cura automática
+* Monitora a quantidade de Pokémon na equipe.
+* Quando a equipe atinge 5 Pokémon, verifica a disponibilidade do retorno ao Centro Pokémon.
+* Executa o retorno automaticamente quando a ação está disponível.
 
-Quando o personagem está no Centro Pokémon e a opção de cura está disponível, a extensão identifica o botão de cura e realiza a ação automaticamente.
+###  Compra automática de Pokébolas
 
-Pode ser ativada ou desativada pelo painel.
+Quando o estoque de Pokébolas chega a zero, a extensão executa o fluxo de compra:
 
----
-
-### 🏠 Retorno automático ao Centro
-
-Quando a equipe atinge **5 Pokémon**, a extensão verifica se o botão de retorno ao Centro Pokémon está disponível.
-
-Quando estiver liberado, o retorno é realizado automaticamente.
-
-Essa função também pode ser desativada pelo painel.
-
----
-
-### 🔴 Compra automática de Pokébolas
-
-A extensão monitora a quantidade de Pokébolas disponíveis.
-
-Quando o estoque chega a zero:
-
-1. A loja é aberta automaticamente.
-2. A aba de compra é selecionada.
-3. A categoria de Pokébolas é localizada.
-4. O item configurado é selecionado.
-5. São realizadas tentativas de compra de **1000 Pokébolas**, desde que o saldo disponível seja suficiente.
-6. A loja é fechada após a operação.
-
----
+1. Abre a loja.
+2. Acessa a aba de compra.
+3. Localiza a categoria de Pokébolas.
+4. Seleciona o item configurado.
+5. Tenta comprar até 1.000 unidades, conforme o saldo disponível e as condições da loja.
+6. Fecha a loja após a operação.
 
 ### 🧪 Compra automática de Poções
 
-A extensão também monitora o estoque de Poções.
-
-Quando as Poções estão esgotadas, a extensão:
+Quando o estoque de Poções está esgotado, a extensão:
 
 1. Abre o Market.
 2. Acessa a aba de compra.
 3. Localiza a categoria de Poções.
-4. Localiza o card configurado para `Life Potions`.
-5. Tenta comprar **1000 unidades**.
+4. Identifica o item configurado em `Life Potions`.
+5. Tenta comprar até 1.000 unidades, conforme o saldo disponível e as condições da loja.
 6. Fecha a loja após a operação.
 
-A compra somente é realizada quando o saldo disponível é suficiente.
+###  Controle da automação
 
----
+O painel permite controlar a execução das rotinas.
 
-### ⏯️ Controle da automação
+* **Iniciar automação:** ativa o processamento das rotinas habilitadas.
+* **Parar automação:** interrompe a execução automática e impede o início de novas operações de compra.
 
-O painel permite iniciar e parar a automação manualmente.
+###  Configurações individuais
 
-**Iniciar automação**
+É possível habilitar ou desabilitar individualmente:
 
-Ativa o loop principal responsável pelas rotinas configuradas.
+* Captura de Pokémon.
+* Cura automática.
+* Retorno automático ao Centro.
+* Compra automática de Pokébolas.
+* Compra automática de Poções.
 
-**Parar automação**
+Assim, cada recurso pode ser utilizado conforme a necessidade do jogador.
 
-Interrompe a execução automática e cancela novas operações de compra.
+###  Status e estatísticas
 
----
+O painel apresenta informações sobre o estado da automação e os recursos do jogador.
 
-### ⚙️ Configurações individuais
+* Status da automação.
+* Quantidade de Pokébolas.
+* Quantidade de Poções.
+* Quantidade de Pokémon na equipe.
+* Informações do inventário.
+* Estatísticas disponíveis sobre os recursos monitorados.
 
-Cada rotina pode ser controlada separadamente:
+O modal de estatísticas permite consultar essas informações e atualizar os dados exibidos.
 
-* Capturar Pokémon
-* Curar Pokémon
-* Voltar ao Centro
-* Comprar Pokébolas
-* Comprar Poções
+###  Retorno manual ao Centro
 
-Isso permite, por exemplo, utilizar somente a captura automática sem ativar as compras automáticas.
-
----
-
-### 📊 Status da extensão
-
-O painel apresenta informações básicas sobre o estado atual da automação:
-
-* Status da automação
-* Quantidade de Pokébolas
-* Quantidade de Poções
-* Quantidade de Pokémon na equipe
-
----
-
-### 🏥 Ação manual de retorno ao Centro
-
-Além do retorno automático, o painel possui uma ação manual:
-
-**Ir para o Centro**
-
-Quando o botão estiver disponível no jogo, a extensão pode acioná-lo diretamente.
-
----
+O painel também disponibiliza a ação **Ir para o Centro**, permitindo acionar manualmente o retorno quando a funcionalidade estiver disponível no jogo.
 
 ### 📝 Sistema de logs
 
-O painel possui uma área de logs para registrar as principais ações realizadas pela extensão, como:
+O painel registra eventos importantes da automação, como:
 
-* Inicialização da automação
-* Parada da automação
-* Alteração das configurações
-* Retorno ao Centro
-* Comunicação com o jogo
+* Inicialização e parada.
+* Alterações nas configurações.
+* Tentativas de compra.
+* Retorno ao Centro.
+* Comunicação com a página do jogo.
+* Erros encontrados durante a execução.
+
+###  Comunicação entre painel e jogo
+
+A extensão utiliza mensagens entre o `popup.js` e o `content.js` para consultar o estado da automação, recuperar informações do inventário e executar ações solicitadas pelo painel.
+
+### 💾 Persistência das configurações
+
+As configurações individuais são armazenadas com a Chrome Storage API, permitindo recuperar as preferências salvas quando o painel for aberto novamente.
 
 ---
 
-## 🛠️ Tecnologias utilizadas
+##  Tecnologias utilizadas
 
 * **JavaScript (ES6+)** — lógica da extensão, automação e manipulação do DOM.
-* **HTML5** — estrutura do painel de controle.
-* **CSS3** — estilização da interface.
-* **Chrome Extension API** — comunicação entre popup e página.
-* **Manifest V3** — estrutura atual da extensão para Google Chrome.
-* **Chrome Storage API** — armazenamento das configurações da extensão.
+* **HTML5** — estrutura do painel.
+* **CSS3** — estilização e organização da interface.
+* **Chrome Extension API** — integração com o navegador e comunicação com a página.
+* **Manifest V3** — arquitetura da extensão para o Google Chrome.
+* **Chrome Storage API** — armazenamento das configurações.
 
 ---
 
-## 📂 Estrutura do projeto
+##  Estrutura do projeto
 
 ```text
 pokeidle_auto-click/
 │
 ├── manifest.json
-│
 ├── content.js
-│
 ├── popup.html
 ├── popup.css
 ├── popup.js
-│
 └── README.md
 ```
 
+### `manifest.json`
+
+Define as configurações da extensão, sua versão, permissões e integração com as páginas do PokéIdle.
+
 ### `content.js`
 
-Responsável pela automação dentro do PokéIdle.
-
-Principais responsabilidades:
+Responsável pela execução da automação dentro do jogo:
 
 * Captura de Pokémon.
 * Cura automática.
 * Retorno ao Centro.
-* Monitoramento de Pokébolas.
-* Monitoramento de Poções.
+* Monitoramento de Pokébolas e Poções.
 * Compra automática de itens.
-* Comunicação com o popup.
+* Consulta de informações do inventário.
+* Recuperação de estatísticas.
+* Comunicação com o painel.
 * Controle do estado da automação.
 
 ### `popup.html`
 
-Define a estrutura visual do painel da extensão.
+Define a estrutura do painel de controle, incluindo botões, configurações, status, logs e modal de estatísticas.
 
 ### `popup.css`
 
-Responsável pela aparência e organização do painel de controle.
+Responsável pela aparência do painel, dos controles e das janelas de informações.
 
 ### `popup.js`
 
-Responsável pela interação do usuário com o painel e pela comunicação com o `content.js`.
+Gerencia as interações do usuário com o painel, a comunicação com o `content.js`, a atualização dos dados e a exibição das estatísticas.
 
 ---
 
 ## ⚙️ Como instalar no Google Chrome
 
-Como a extensão é destinada atualmente para uso pessoal e desenvolvimento, ela pode ser instalada utilizando o modo de desenvolvedor do Chrome.
+A extensão pode ser instalada localmente pelo modo de desenvolvedor do Chrome.
 
 ### 1. Clone o repositório
 
@@ -203,9 +179,9 @@ git clone https://github.com/SEU-USUARIO/NOME-DO-REPOSITORIO.git
 
 Ou faça o download do projeto pelo GitHub.
 
-### 2. Abra as extensões do Chrome
+### 2. Acesse a página de extensões
 
-No navegador, acesse:
+Abra o seguinte endereço no Chrome:
 
 ```text
 chrome://extensions/
@@ -213,122 +189,115 @@ chrome://extensions/
 
 ### 3. Ative o modo desenvolvedor
 
-No canto superior direito, ative:
-
-```text
-Modo do desenvolvedor
-```
+Ative a opção **Modo do desenvolvedor**, localizada no canto superior direito.
 
 ### 4. Carregue a extensão
 
-Clique em:
+Clique em **Carregar sem compactação** e selecione a pasta do projeto.
 
-```text
-Carregar sem compactação
-```
+### 5. Abra o PokéIdle
 
-Selecione a pasta do projeto:
+Acesse:
 
-```text
-pokeidle_auto-click/
-```
-
-### 5. Acesse o PokéIdle
-
-Abra:
-
-```text
 https://pokeidle.io/
-```
 
-Entre no jogo e acesse a página onde a automação será utilizada.
+Entre no jogo e navegue até a página em que deseja utilizar a automação.
 
-### 6. Abra a extensão
+### 6. Abra o painel
 
-Clique no ícone da extensão do Chrome e abra:
-
-**PokéIdle Auto Helper**
-
-A partir do painel será possível configurar e iniciar a automação.
+Clique no ícone da extensão e abra o **PokéIdle Auto-Helper** para configurar as rotinas desejadas.
 
 ---
 
-## 🚀 Utilização
-
-Depois de instalar a extensão:
+## 🚀 Como utilizar
 
 1. Abra o PokéIdle.
-2. Abra o **PokéIdle Auto Helper**.
-3. Configure as funções desejadas.
-4. Ative ou desative cada recurso conforme necessário.
-5. Clique em **Iniciar automação**.
-6. A extensão executará as rotinas configuradas enquanto o jogo estiver aberto.
+2. Abra o painel da extensão.
+3. Configure as rotinas que deseja utilizar.
+4. Clique em **Iniciar automação**.
+5. Acompanhe o estado da automação, o inventário e as estatísticas pelo painel.
+6. Para interromper as rotinas, clique em **Parar automação**.
 
-Para interromper:
-
-```text
-Parar automação
-```
+O funcionamento depende de o jogo estar aberto e dos elementos necessários estarem disponíveis na página.
 
 ---
 
-## 🔒 Controle de segurança da automação
+## 🔒 Controle de segurança das compras
 
-A extensão utiliza uma variável de controle para evitar que operações de compra sejam executadas simultaneamente:
+A extensão utiliza uma variável de controle para evitar a execução simultânea de operações de compra:
 
 ```javascript
 let comprando = false;
 ```
 
-Durante uma compra, novas tentativas são bloqueadas até que a operação seja finalizada.
+Enquanto uma compra está em andamento, novas tentativas são bloqueadas. Intervalos de espera também são utilizados para permitir que a interface do jogo atualize os elementos necessários entre as etapas.
 
-Também são utilizados intervalos de espera entre as etapas da compra para acompanhar o carregamento dos elementos da interface do jogo.
+Esses mecanismos ajudam a reduzir operações duplicadas e problemas causados pelo carregamento da loja.
 
 ---
 
-## 📦 Versão 2.4.6
+## 📦 Histórico de versões
 
-### Novidades
+### v2.5.0 — Melhorias no painel e nas estatísticas
 
-* Novo painel de controle da extensão.
-* Controle manual para iniciar e parar a automação.
+* Aprimoramento do painel de controle.
+* Correção da abertura e do fechamento do modal de estatísticas.
+* Atualização das informações de inventário.
+* Melhorias na comunicação entre `popup.js` e `content.js`.
+* Exibição das estatísticas disponíveis do jogador.
+* Ajustes na atualização dos dados de Pokébolas e Poções.
+* Melhorias na sincronização entre configurações, inventário e painel.
+* Ajustes gerais de estabilidade e usabilidade.
+
+### v2.4.6 — Automação e gerenciamento pelo painel
+
+* Novo painel de controle.
+* Controles para iniciar e parar a automação.
 * Configurações individuais para cada rotina.
 * Captura automática de Pokémon.
 * Cura automática no Centro Pokémon.
-* Retorno automático ao Centro com equipe cheia.
+* Retorno automático ao Centro com a equipe cheia.
 * Compra automática de Pokébolas.
 * Compra automática de Poções.
-* Status da equipe.
-* Status de Pokébolas.
-* Status de Poções.
+* Exibição do status da equipe.
+* Exibição do estoque de Pokébolas e Poções.
 * Ação manual para ir ao Centro.
-* Sistema de logs no painel.
+* Sistema de logs.
 * Comunicação entre `popup.js` e `content.js`.
-* Persistência das configurações utilizando Chrome Storage.
+* Persistência das configurações com Chrome Storage.
 
-### Removido
+**Funcionalidades removidas ou descontinuadas na versão 2.4.6:**
 
 * Configuração automática de regiões.
 * Seleção de áreas.
 * Sistema de níveis para desbloqueio de regiões.
-* Filtros de tipos de Pokémon.
+* Filtros por tipo de Pokémon.
 * Automação baseada em região.
 
 ---
 
-## 📌 Roadmap
+## 🗺️ Roadmap
 
-Possíveis melhorias futuras:
+Possíveis melhorias para versões futuras:
 
 * [ ] Histórico detalhado de capturas.
-* [ ] Estatísticas da automação.
 * [ ] Configuração da quantidade de itens comprados.
-* [ ] Configuração de limite mínimo de moedas.
-* [ ] Mais opções de gerenciamento da equipe.
+* [ ] Limite mínimo de moedas para compras.
+* [ ] Opções adicionais de gerenciamento da equipe.
 * [ ] Sistema de notificações.
 * [ ] Melhor gerenciamento de erros.
 * [ ] Melhorias na interface do painel.
 * [ ] Configurações avançadas de automação.
+* [ ] Histórico de compras e consumo de itens.
+* [ ] Estatísticas detalhadas de desempenho.
 
+---
 
+## ⚠️ Observações
+
+* A extensão foi desenvolvida para uso com o jogo PokéIdle no Google Chrome.
+* Os seletores e os fluxos de automação dependem da estrutura atual da interface do jogo.
+* Alterações no site podem exigir ajustes no código.
+* As compras automáticas dependem do saldo disponível e das condições estabelecidas pelo jogo.
+* Utilize as rotinas automáticas de acordo com as regras e os termos de uso do jogo.
 
