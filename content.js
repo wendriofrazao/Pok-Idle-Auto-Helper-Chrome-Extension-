@@ -15,6 +15,7 @@ let configuracao = { ...CONFIG_PADRAO };
 let automacaoAtiva = false;
 let intervaloAutomacao = null;
 let ultimaCompra = 0;
+let compraEmAndamento = false;
 let ultimaAcao = 0;
 let ultimoLog = "";
 let ultimoLogEm = 0;
@@ -71,7 +72,6 @@ function converterNumero(texto) {
   }
 
   const numero = Number(valor);
-
   return Number.isFinite(numero) ? numero : null;
 }
 
@@ -92,18 +92,42 @@ function lerSaldoMoedas() {
 }
 
 function lerEstoque(seletor) {
-  return Array.from(document.querySelectorAll(`${seletor} .auto-chip`)).map(
-    (botao) => {
-      const titulo = botao.getAttribute("title") || "";
-      const nome = titulo.split(" — ")[0].trim();
-      const textoQuantidade = botao.querySelector(".q")?.textContent ?? "0";
+  const container = document.querySelector(seletor);
 
-      return {
-        nome,
-        quantidade: converterNumero(textoQuantidade) ?? 0,
-      };
-    },
-  );
+  if (!container) return null;
+
+  return Array.from(container.querySelectorAll(".auto-chip"))
+    .map((botao) => {
+      const titulo = botao.getAttribute("title") || "";
+
+      const nomeElemento = botao.querySelector(
+        ".nome, .name, .label, .auto-chip-nome, span:not(.q)",
+      );
+
+      const nome = (
+        nomeElemento?.textContent ||
+        titulo.split(/[—–]/)[0] ||
+        botao.getAttribute("aria-label") ||
+        ""
+      ).trim();
+
+      const elementoQuantidade = botao.querySelector(
+        ".q, .quantidade, .qtd, [data-quantidade]",
+      );
+
+      const atributoQuantidade =
+        elementoQuantidade?.getAttribute("data-quantidade") ??
+        botao.getAttribute("data-quantidade");
+
+      const textoQuantidade =
+        elementoQuantidade?.textContent ?? atributoQuantidade ?? null;
+
+      const quantidade =
+        textoQuantidade === null ? null : converterNumero(textoQuantidade);
+
+      return { nome, quantidade };
+    })
+    .filter((item) => item.nome);
 }
 
 function contarEquipe() {
@@ -136,6 +160,7 @@ function contarDepot() {
   const grade = document.querySelector(".eco-grade-pk");
 
   if (!grade) return null;
+
   if (grade.querySelector(".eco-vazio")) return 0;
 
   return grade.querySelectorAll(
@@ -144,8 +169,8 @@ function contarDepot() {
 }
 
 function obterEstatisticas() {
-  const pokebolas = lerEstoque("#auto-ball-opts");
-  const pocoes = lerEstoque("#auto-potion-opts");
+  const pokebolas = lerEstoque("#auto-ball-opts") || [];
+  const pocoes = lerEstoque("#auto-potion-opts") || [];
 
   return {
     moedas: lerSaldoMoedas(),
@@ -154,10 +179,13 @@ function obterEstatisticas() {
     pokebolas,
     pocoes,
     totalPokebolas: pokebolas.reduce(
-      (total, item) => total + item.quantidade,
+      (total, item) => total + (item.quantidade || 0),
       0,
     ),
-    totalPocoes: pocoes.reduce((total, item) => total + item.quantidade, 0),
+    totalPocoes: pocoes.reduce(
+      (total, item) => total + (item.quantidade || 0),
+      0,
+    ),
     atualizadoEm: Date.now(),
   };
 }
@@ -332,50 +360,78 @@ function voltarCentroAutomaticamente() {
 /* Abrir e fechar Market */
 
 function encontrarBotaoLoja() {
-  const seletores = [
-    'button[data-modal="market"]',
-    '[data-modal="market"]',
-    "#abrir-market",
-    "#btn-market",
-  ];
+  const botao = document.querySelector('button[data-modal="market"]');
 
-  for (const seletor of seletores) {
-    const elemento = document.querySelector(seletor);
-
-    if (elementoVisivel(elemento) && elementoHabilitado(elemento)) {
-      return elemento;
-    }
+  if (elementoVisivel(botao) && elementoHabilitado(botao)) {
+    return botao;
   }
 
   return null;
 }
 
-function fecharMarket() {
+function marketEstaAberto() {
   const modal = document.querySelector("#modal");
-  const botaoFechar = document.querySelector("#modal-fechar");
+  const titulo = document.querySelector("#modal-titulo");
+  const corpoLoja = document.querySelector("#mk-corpo");
 
-  if (!modal || modal.classList.contains("hidden")) {
-    return true;
+  if (!modal || modal.classList.contains("hidden")) return false;
+
+  if (!elementoVisivel(modal) || !elementoVisivel(corpoLoja)) {
+    return false;
   }
 
-  if (botaoFechar && elementoVisivel(botaoFechar)) {
-    botaoFechar.click();
-
-    setTimeout(() => {
-      if (!modal.classList.contains("hidden")) {
-        registrarLog("O Market continua aberto após tentar fechar.");
-      } else {
-        registrarLog("Market fechado após a compra.");
-      }
-    }, 300);
-
-    return true;
-  }
-
-  registrarLog("Botão de fechar o Market não encontrado.");
-  return false;
+  return normalizarTexto(titulo?.textContent) === "market";
 }
 
+async function abrirMarket() {
+  if (marketEstaAberto()) return true;
+
+  const botao = encontrarBotaoLoja();
+
+  if (!botao) {
+    registrarLog("Botão de abertura do Market não encontrado.");
+    return false;
+  }
+
+  botao.click();
+
+  registrarLog("Abrindo Market para comprar itens.");
+
+  await new Promise((resolve) => setTimeout(resolve, 400));
+
+  if (!marketEstaAberto()) {
+    registrarLog("O Market não abriu após clicar no botão.");
+    return false;
+  }
+
+  return true;
+}
+
+function fecharMarket() {
+  if (!marketEstaAberto()) return true;
+
+  const botaoFechar = document.querySelector("#modal-fechar");
+
+  if (!botaoFechar || !elementoHabilitado(botaoFechar)) {
+    registrarLog("Não foi possível localizar o botão de fechar o Market.");
+    return false;
+  }
+
+  botaoFechar.click();
+
+  setTimeout(() => {
+    const modalAtual = document.querySelector("#modal");
+    const fechado = !modalAtual || modalAtual.classList.contains("hidden");
+
+    registrarLog(
+      fechado
+        ? "Market fechado após a compra."
+        : "O Market continua aberto após clicar em fechar.",
+    );
+  }, 300);
+
+  return true;
+}
 /* Categorias da loja */
 
 function selecionarCategoriaLoja(categoria) {
@@ -391,7 +447,6 @@ function selecionarCategoriaLoja(categoria) {
 
   if (!botao || !elementoVisivel(botao) || !elementoHabilitado(botao)) {
     registrarLog(`Categoria "${categoria}" não encontrada na loja.`);
-
     return "indisponivel";
   }
 
@@ -432,6 +487,7 @@ function selecionarAbaCompra() {
 
     const botao = botoes.find((elemento) => {
       const texto = normalizarTexto(elemento.textContent);
+
       const atributo = normalizarTexto(
         elemento.getAttribute("data-aba") || elemento.getAttribute("data-tela"),
       );
@@ -486,7 +542,6 @@ function comprarItem(nomeItem, quantidade) {
 
   if (!elementoVisivel(botaoComprar) || !elementoHabilitado(botaoComprar)) {
     registrarLog(`Botão de compra indisponível para ${nomeItem}.`);
-
     return false;
   }
 
@@ -505,22 +560,16 @@ function comprarItem(nomeItem, quantidade) {
   return true;
 }
 
-function tentarComprar(nomeItem, quantidade, categoria) {
+async function tentarComprar(nomeItem, quantidade, categoria) {
+  if (!marketEstaAberto()) {
+    await abrirMarket();
+    return true;
+  }
+
   const corpoLoja = document.querySelector("#mk-corpo");
 
   if (!corpoLoja) {
-    const botaoLoja = encontrarBotaoLoja();
-
-    if (elementoVisivel(botaoLoja) && elementoHabilitado(botaoLoja)) {
-      botaoLoja.click();
-
-      registrarLog("Abrindo Market para comprar itens.");
-
-      return true;
-    }
-
-    registrarLog("Market fechado e botão de abertura não encontrado.");
-
+    registrarLog("Conteúdo do Market não encontrado.");
     return false;
   }
 
@@ -553,48 +602,77 @@ function tentarComprar(nomeItem, quantidade, categoria) {
 /* Monitoramento de estoque */
 
 function verificarCompras() {
-  if (Date.now() - ultimaCompra < INTERVALO_COMPRA) {
-    return;
+  if (compraEmAndamento || Date.now() - ultimaCompra < INTERVALO_COMPRA) {
+    return false;
   }
 
   const bolas = lerEstoque("#auto-ball-opts");
   const pocoes = lerEstoque("#auto-potion-opts");
 
-  if (configuracao.comprarBolas) {
-    const itemBola = bolas.find((item) => {
-      return (
-        normalizarTexto(item.nome) ===
-        normalizarTexto(configuracao.bolaSelecionada)
-      );
-    });
+  const precisaComprar = (estoque, nomeConfigurado) => {
+    if (estoque === null) return false;
 
-    if (itemBola && itemBola.quantidade <= 0) {
-      const iniciouAcao = tentarComprar(
+    const item = estoque.find(
+      (registro) =>
+        normalizarTexto(registro.nome) === normalizarTexto(nomeConfigurado),
+    );
+
+    if (!item) return true;
+
+    return item.quantidade !== null && item.quantidade <= 0;
+  };
+
+  if (
+    configuracao.comprarBolas &&
+    precisaComprar(bolas, configuracao.bolaSelecionada)
+  ) {
+    compraEmAndamento = true;
+
+    Promise.resolve(
+      tentarComprar(
         configuracao.bolaSelecionada,
         configuracao.quantidadeBolas,
         "Pokébolas",
-      );
+      ),
+    )
+      .catch(() => {
+        registrarLog("Erro ao tentar comprar Pokébolas.");
+      })
+      .finally(() => {
+        setTimeout(() => {
+          compraEmAndamento = false;
+        }, 1200);
+      });
 
-      if (iniciouAcao) return;
-    }
+    return true;
   }
 
-  if (configuracao.comprarPocoes) {
-    const itemPocao = pocoes.find((item) => {
-      return (
-        normalizarTexto(item.nome) ===
-        normalizarTexto(configuracao.pocaoSelecionada)
-      );
-    });
+  if (
+    configuracao.comprarPocoes &&
+    precisaComprar(pocoes, configuracao.pocaoSelecionada)
+  ) {
+    compraEmAndamento = true;
 
-    if (itemPocao && itemPocao.quantidade <= 0) {
+    Promise.resolve(
       tentarComprar(
         configuracao.pocaoSelecionada,
         configuracao.quantidadePocoes,
         "Poções",
-      );
-    }
+      ),
+    )
+      .catch(() => {
+        registrarLog("Erro ao tentar comprar Poções.");
+      })
+      .finally(() => {
+        setTimeout(() => {
+          compraEmAndamento = false;
+        }, 1200);
+      });
+
+    return true;
   }
+
+  return false;
 }
 
 /* Ciclo da automação */
@@ -608,11 +686,10 @@ function executarAutomacao() {
 
   ultimaAcao = Date.now();
 
+  if (verificarCompras()) return;
   if (capturarPokemonCaido()) return;
   if (curarEquipe()) return;
   if (voltarCentroAutomaticamente()) return;
-
-  verificarCompras();
 }
 
 async function iniciarAutomacao() {
@@ -698,9 +775,9 @@ chrome.runtime.onMessage.addListener((mensagem, remetente, sendResponse) => {
       ...(mensagem.configuracao || {}),
     };
 
-    chrome.storage.local.set({ configuracao }, () =>
-      sendResponse({ sucesso: true }),
-    );
+    chrome.storage.local.set({ configuracao }, () => {
+      sendResponse({ sucesso: true });
+    });
 
     return true;
   }
