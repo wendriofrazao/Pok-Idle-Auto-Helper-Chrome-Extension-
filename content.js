@@ -351,62 +351,28 @@ function encontrarBotaoLoja() {
 }
 
 function fecharMarket() {
-  const seletores = [
-    "#mk-fechar",
-    "#mk-fechar-modal",
-    ".mk-fechar",
-    ".mk-close",
-    "#mk-modal .fechar",
-    "#mk-modal button[aria-label='Fechar']",
-    "#mk-modal button[title='Fechar']",
-    "#mk-modal .mk-x",
-    "#mk-modal [data-fechar]",
-  ];
+  const modal = document.querySelector("#modal");
+  const botaoFechar = document.querySelector("#modal-fechar");
 
-  for (const seletor of seletores) {
-    const botao = document.querySelector(seletor);
-
-    if (elementoVisivel(botao) && elementoHabilitado(botao)) {
-      botao.click();
-      registrarLog("Market fechado após a compra.");
-      return true;
-    }
+  if (!modal || modal.classList.contains("hidden")) {
+    return true;
   }
 
-  const raizLoja =
-    document.querySelector("#mk-modal") ||
-    document
-      .querySelector("#mk-corpo")
-      ?.closest('[role="dialog"], .modal, .mk-modal');
+  if (botaoFechar && elementoVisivel(botaoFechar)) {
+    botaoFechar.click();
 
-  if (raizLoja) {
-    const botao = Array.from(raizLoja.querySelectorAll("button")).find(
-      (elemento) => {
-        const texto = normalizarTexto(elemento.textContent);
-        const aria = normalizarTexto(elemento.getAttribute("aria-label"));
-        const titulo = normalizarTexto(elemento.getAttribute("title"));
+    setTimeout(() => {
+      if (!modal.classList.contains("hidden")) {
+        registrarLog("O Market continua aberto após tentar fechar.");
+      } else {
+        registrarLog("Market fechado após a compra.");
+      }
+    }, 300);
 
-        return (
-          texto === "fechar" ||
-          aria === "fechar" ||
-          titulo === "fechar" ||
-          aria === "close" ||
-          titulo === "close"
-        );
-      },
-    );
-
-    if (elementoVisivel(botao) && elementoHabilitado(botao)) {
-      botao.click();
-      registrarLog("Market fechado após a compra.");
-      return true;
-    }
+    return true;
   }
 
-  registrarLog(
-    "Botão de fechar o Market não encontrado; confira o seletor no HTML.",
-  );
-
+  registrarLog("Botão de fechar o Market não encontrado.");
   return false;
 }
 

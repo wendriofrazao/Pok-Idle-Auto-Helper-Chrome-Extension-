@@ -1,16 +1,26 @@
 {
   "manifest_version": 3,
   "name": "PokéIdle Automação",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "Automação para o PokéIdle",
   "permissions": [
     "activeTab",
     "scripting",
     "storage"
   ],
+  "icons": {
+    "16": "icons/Poké_Ball_Automática.png",
+    "48": "icons/Poké_Ball_Automática.png",
+    "128": "icons/Poké_Ball_Automática.png"
+  },
+
   "action": {
     "default_popup": "popup.html",
-    "default_title": "PokéIdle Bot"
+    "default_title": "PokéIdle Bot",
+    "default_icon": {
+      "16": "icons/Poké_Ball_Automática.png",
+      "48": "icons/Poké_Ball_Automática.png"
+    }
   },
   "content_scripts": [
     {
